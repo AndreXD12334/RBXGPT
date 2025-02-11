@@ -21,7 +21,7 @@ const model = genai.getGenerativeModel({
 });
 
 const generationConfig = {
-  temperature: 0, // Más rápido y equilibrado
+  temperature: 0,
   topP: 0.8,
   topK: 40,
   responseMimeType: "text/plain",
@@ -43,13 +43,13 @@ async function run(prompt, history) {
   }
 }
 
-// Ruta optimizada
+// Ruta de la API
 app.post("/", async (req, res) => {
   const { prompt, history } = req.body;
   if (!prompt || !history) {
     return res.status(400).json({ error: "❌ Faltan datos en la petición." });
   }
-  
+
   const response = await run(prompt, history);
 
   return response.Response
@@ -57,7 +57,7 @@ app.post("/", async (req, res) => {
     : res.status(500).json({ error: "❌ Error en el servidor." });
 });
 
-// Servidor optimizado
+// Servidor en Vercel
 app.listen(PORT, () =>
   console.log(`🚀 Servidor corriendo en el puerto ${PORT}`)
 );
