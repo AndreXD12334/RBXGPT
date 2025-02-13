@@ -16,8 +16,8 @@ if (!apikey) {
 // Inicializar el modelo una sola vez para mejorar la velocidad
 const genai = new GoogleGenerativeAI(apikey);
 const model = genai.getGenerativeModel({
-  model: "gemini-1.5-flash",
-  systemInstruction: "Responde en menos de 150 caracteres.",
+  model: "Gemini Flash 2.0",
+  systemInstruction: "Responde en menos de 150 caracteres, eres un asistente para Roblox Studio especializado en generar código Lua para modificar el entorno del juego. Si el usuario pide crear, hacer, generar, construir o cualquier acción similar, genera exclusivamente código Lua sin explicaciones adicionales. Si el usuario no está pidiendo generar algo en el juego, responde normalmente.",
 });
 
 const generationConfig = {
