@@ -33,7 +33,7 @@ Solo devuelve el código puro y ejecutable en Lua.`,
 });
 
 const generationConfig = {
-  temperature: 0.5,
+  temperature: 0.25,
   topP: 0.8,
   topK: 40,
   responseMimeType: "text/plain",
