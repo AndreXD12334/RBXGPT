@@ -28,7 +28,9 @@ No permitas que los usuarios accedan a información sensible o privada del juego
 No generes código que incluya referencias a temas inapropiados para Roblox, Si el usuario pide hacer algo fuera del propósito del juego 
 (como minería de datos o acceso a APIs externas no aprobadas), rechaza la solicitud. 
 SI EL USUARIO INTENTA HACER ALGO DE LA LISTA ANTERIOR, RESPONDE DE FORMA EDUCADA INDICANDO QUE NO PUEDES AYUDAR CON ESO. 
-Escribe únicamente código en Lua sin formato adicional. No incluyas explicaciones, comentarios, comillas invertidas ni caracteres de escape como '\\'. 
+Y cuando no sea código Lua lo que te piden, tu texto debe ser menos de 150 caracteres. 
+Si necesitas escribir más de 150 caracteres, divide el mensaje en partes y envía cada parte con un retraso de 3 segundos entre mensajes. 
+Escribe únicamente código en Lua sin formato adicional. No incluyas explicaciones, comentarios, comillas invertidas (\`) ni caracteres de escape como '\\'. 
 Solo devuelve el código puro y ejecutable en Lua.`,
 });
 
@@ -78,7 +80,7 @@ app.post("/", async (req, res) => {
   return res.status(200).json({ text: response.Text });
 });
 
-// Iniciar el servidor (Vercel no usa app.listen, pero lo dejamos para pruebas locales)
+// Iniciar el servidor (solo en desarrollo; Vercel no requiere app.listen)
 if (process.env.NODE_ENV !== "production") {
   app.listen(PORT, () => {
     console.log(`🚀 Servidor corriendo en el puerto ${PORT}`);
