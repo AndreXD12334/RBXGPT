@@ -4,7 +4,6 @@ const cors = require("cors");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const app = express();
-const PORT = 8080;
 
 app.use(cors()); // Permitir solicitudes desde cualquier origen (Roblox incluido)
 app.use(bodyParser.json());
@@ -71,7 +70,7 @@ async function run(prompt, history) {
   }
 }
 
-// Ruta para recibir solicitudes desde Roblox
+// Ruta para recibir solicitudes desde Roblox o Postman
 app.post("/", async (req, res) => {
   let { prompt, history } = req.body;
 
@@ -91,7 +90,5 @@ app.post("/", async (req, res) => {
   return res.status(200).json({ text: response.Text });
 });
 
-// Iniciar el servidor
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor corriendo en el puerto ${PORT}`);
-});
+// Exportar el handler para Vercel
+module.exports = app;
