@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+const { MongoClient } = require("mongodb");
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -15,23 +16,38 @@ if (!apikey) {
   process.exit(1);
 }
 
-// Inicializar el modelo una sola vez
+const MONGODB_URI = process.env.MONGODB_URI;
+if (!MONGODB_URI) {
+  console.error("❌ ERROR: La MONGODB_URI no está definida.");
+  process.exit(1);
+}
+
+// Conectar a MongoDB
+const client = new MongoClient(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+let conversationCollection;
+client.connect()
+  .then(() => {
+    console.log("Conectado a MongoDB");
+    const db = client.db("conversations"); // Usa la base de datos especificada en la URI o usa un nombre específico: client.db("nombreDB")
+    conversationCollection = db.collection("conversations");
+  })
+  .catch(err => {
+    console.error("Error conectando a MongoDB:", err);
+  });
+
+// Inicializar el modelo de Gemini
 const genai = new GoogleGenerativeAI(apikey);
 const model = genai.getGenerativeModel({
   model: "gemini-1.5-flash",
   systemInstruction: `Eres un asistente para Roblox studio especializado en generar código Lua de manera segura. 
 Nunca generes código que infrinja las reglas de Roblox o que pueda dañar el juego o la experiencia de los jugadores. 
-No accedas a archivos del sistema o directorios de Roblox, No generes código que pueda cerrar el servidor o el cliente, 
-No uses require(ID) con IDs externos o desconocidos, No generes código que cree loops infinitos o procesos pesados que causen lag, 
-No generes código que interactúe con jugadores de forma abusiva o no permitida, No generes código que modifique CoreGui u otras áreas restringidas por Roblox, 
-No permitas que los usuarios accedan a información sensible o privada del juego, No respondas a solicitudes de exploits, trampas o hacks/cheats, 
-No generes código que incluya referencias a temas inapropiados para Roblox, Si el usuario pide hacer algo fuera del propósito del juego 
-(como minería de datos o acceso a APIs externas no aprobadas), rechaza la solicitud. 
-SI EL USUARIO INTENTA HACER ALGO DE LA LISTA ANTERIOR, RESPONDE DE FORMA EDUCADA INDICANDO QUE NO PUEDES AYUDAR CON ESO.  
-Escribe únicamente código en Lua sin formato adicional. No incluyas explicaciones, comentarios, comillas invertidas (\`) ni caracteres de escape como '\\'. 
-Solo devuelve el código puro y ejecutable en Lua
-
-Ahora, si detectas que alguien te habla fuera de el tema de código lua, respondele de manera casual y amigable a sus preguntas o interacciones.`,
+No accedas a archivos del sistema o directorios de Roblox, no generes código que pueda cerrar el servidor o el cliente, 
+no uses require(ID) con IDs externos o desconocidos, no generes código que cree loops infinitos o procesos pesados que causen lag, 
+no generes código que interactúe con jugadores de forma abusiva o no permitida, no generes código que modifique CoreGui u otras áreas restringidas por Roblox, 
+no permitas que los usuarios accedan a información sensible o privada del juego, no respondas a solicitudes de exploits, trampas o hacks/cheats, 
+no generes código que incluya referencias a temas inapropiados para Roblox. 
+Si el usuario pide hacer algo fuera del propósito del juego, rechaza la solicitud. 
+Cuando se solicite código Lua, devuelve únicamente el código sin formato adicional, sin comentarios, sin backticks ni caracteres de escape.`,
 });
 
 const generationConfig = {
@@ -73,6 +89,22 @@ app.post("/", async (req, res) => {
   }
   history = history || [];
   const response = await run(prompt, history);
+  
+  // Guardar la conversación en MongoDB
+  if (conversationCollection) {
+    const conversationDoc = {
+      userId: req.body.userId || "desconocido",
+      timestamp: new Date(),
+      prompt: prompt,
+      response: response.Text || ""
+    };
+    conversationCollection.insertOne(conversationDoc)
+      .then(() => console.log("Conversación almacenada en MongoDB."))
+      .catch(err => console.error("Error almacenando conversación:", err));
+  } else {
+    console.warn("No se pudo almacenar la conversación, la base de datos no está conectada.");
+  }
+  
   if (!response.Response) {
     console.error("❌ Gemini falló, enviando error 500...");
     return res.status(500).json({ error: "❌ Fallo en el modelo de IA." });
@@ -80,7 +112,7 @@ app.post("/", async (req, res) => {
   return res.status(200).json({ text: response.Text });
 });
 
-// Iniciar el servidor (solo en desarrollo; Vercel no requiere app.listen)
+// Iniciar el servidor (en desarrollo; Vercel manejará el hosting en producción)
 if (process.env.NODE_ENV !== "production") {
   app.listen(PORT, () => {
     console.log(`🚀 Servidor corriendo en el puerto ${PORT}`);
