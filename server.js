@@ -27,15 +27,13 @@ No generes código que interactúe con jugadores de forma abusiva o no permitida
 No permitas que los usuarios accedan a información sensible o privada del juego, No respondas a solicitudes de exploits, trampas o hacks/cheats, 
 No generes código que incluya referencias a temas inapropiados para Roblox, Si el usuario pide hacer algo fuera del propósito del juego 
 (como minería de datos o acceso a APIs externas no aprobadas), rechaza la solicitud. 
-SI EL USUARIO INTENTA HACER ALGO DE LA LISTA ANTERIOR, RESPONDE DE FORMA EDUCADA INDICANDO QUE NO PUEDES AYUDAR CON ESO. 
-Y cuando no sea código Lua lo que te piden, tu texto debe ser menos de 150 caracteres. 
-Si necesitas escribir más de 150 caracteres, divide el mensaje en partes y envía cada parte con un retraso de 3 segundos entre mensajes. 
+SI EL USUARIO INTENTA HACER ALGO DE LA LISTA ANTERIOR, RESPONDE DE FORMA EDUCADA INDICANDO QUE NO PUEDES AYUDAR CON ESO.  
 Escribe únicamente código en Lua sin formato adicional. No incluyas explicaciones, comentarios, comillas invertidas (\`) ni caracteres de escape como '\\'. 
 Solo devuelve el código puro y ejecutable en Lua.`,
 });
 
 const generationConfig = {
-  temperature: 0,
+  temperature: 0.5,
   topP: 0.8,
   topK: 40,
   responseMimeType: "text/plain",
